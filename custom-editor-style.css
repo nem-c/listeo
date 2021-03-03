@@ -1,0 +1,20 @@
+body {
+		color: #707070;
+		font-size: 15px;
+		line-height: 27px;
+		background-color: #fff;
+}
+
+body p { font-size: 16px; line-height: 29px; }
+
+/* Main Font */
+body, h1, h2, h3, h4, h5, h6,  input[type="text"], input[type="password"], input[type="email"],
+textarea, select, input[type="button"], input[type="submit"], button, #tiptip_content, .map-box p, .map-box div,
+.numerical-rating .rating-counter, body .menu-responsive i.menu-trigger:after
+{ font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif; text-transform: none; }
+
+
+/* Headlines */
+h1, h2, h3, h4, h5, h6 {
+  color: #222;
+}
