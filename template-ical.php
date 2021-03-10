@@ -110,9 +110,44 @@ ob_start();
 		$event_dt_end   = $event_dt_end_datetime->add( DateInterval::createFromDateString( '1 minute' ) )->format( 'Ymd' );
 	}
 
-	$event_summary  = get_the_title( $event->listing_id );
-	$event_location = listeo_escape_string( get_post_meta( $event->listing_id, '_address', true ) );
+	$event_location = get_the_title( $event->listing_id ) . ' \; ' . listeo_escape_string( get_post_meta( $event->listing_id, '_address', true ) );
 	$event_uid      = sha1( sprintf( '%s-%s', $event->ID, $event_dt_stamp ) );
+
+	$event_description  = '';
+	$description_object = json_decode( $event->comment );
+	/**
+	 * <b>NULL</b> is returned if the
+	 * <i>json</i> cannot be decoded or if the encoded
+	 * data is deeper than the recursion limit.
+	 */
+
+	if ( false === is_null( $description_object ) ) {
+		if ( is_object( $description_object ) ) {
+
+			if ( true === Listeo_Core_Bookings_Calendar::is_booking_external( $event->status ) ) {
+				$event_summary = $description_object->summary;
+
+				$event_description = '=> ' . $description_object->uid . $eol;
+				$event_description .= '---------------------' . $eol;
+				$event_description .= $description_object->summary . $eol;
+				$event_description .= $description_object->description . $eol;
+				$event_description .= $description_object->location . $eol;
+			} else {
+				$event_summary = $description_object->first_name . ' ' . $description_object->last_name;
+
+				$event_description = $description_object->first_name . ' ' . $description_object->last_name . $eol;
+				$event_description .= $description_object->email . $eol;
+				$event_description .= $description_object->phone . $eol;
+				$event_description .= $description_object->message . $eol;
+			}
+
+		} elseif ( is_string( $description_object ) ) {
+			$event_description = $description_object;
+		}
+
+		$event_description = preg_replace( '/\n/', '\n', $event_description );
+	}
+
 	?>
 
     BEGIN:VEVENT<?php echo $eol; ?>
@@ -137,7 +172,7 @@ ob_start();
     URL:<?php echo site_url( 'bookings/?status=approved#booking-' . $event->ID ); ?><?php echo $eol; ?>
     LOCATION:<?php echo $event_location; ?><?php echo $eol; ?>
     SUMMARY:<?php echo $event_summary; ?><?php echo $eol; ?>
-    DESCRIPTION:TODO (nice formatting of data stored in comment of bookings_calendar)<?php echo $eol; ?>
+    DESCRIPTION:<?php echo $event_description; ?><?php echo $eol; ?>
     STATUS:CONFIRMED<?php echo $eol; ?>
     TRANSP:TRANSPARENT<?php echo $eol; ?>
     X-MICROSOFT-CDO-BUSYSTATUS:BUSY<?php echo $eol; ?>
